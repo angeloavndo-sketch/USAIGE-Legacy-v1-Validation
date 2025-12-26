@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Zap, TrendingUp, TrendingDown, Percent, Activity, Database } from 'lucide-react';
+import { Zap, TrendingUp, TrendingDown, Percent, Activity, Database, Building2 } from 'lucide-react';
 import { generateUsageData, detectPeakHours, UsageDataPoint, PeakAnalysis } from '@/lib/peakDetection';
 import { saveUsageData, loadUsageData, hasStoredData } from '@/lib/storage';
 import { UsageChart } from '@/components/UsageChart';
@@ -7,6 +7,7 @@ import { StatCard } from '@/components/StatCard';
 import { PeakStatus } from '@/components/PeakStatus';
 import { PeakHoursTimeline } from '@/components/PeakHoursTimeline';
 import { UsageDataEntry } from '@/components/UsageDataEntry';
+import { BuildingManager } from '@/components/BuildingManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
@@ -74,6 +75,13 @@ const Index = () => {
             >
               <Activity className="w-4 h-4 mr-2" />
               Dashboard
+            </TabsTrigger>
+            <TabsTrigger 
+              value="buildings"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <Building2 className="w-4 h-4 mr-2" />
+              Buildings
             </TabsTrigger>
             <TabsTrigger 
               value="data-entry"
@@ -148,6 +156,10 @@ const Index = () => {
                 </span>
               </div>
             </section>
+          </TabsContent>
+
+          <TabsContent value="buildings" className="mt-6">
+            <BuildingManager onCalculate={handleDataSave} />
           </TabsContent>
 
           <TabsContent value="data-entry" className="mt-6">
