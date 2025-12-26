@@ -1,3 +1,5 @@
+import { WeeklySchedule, defaultSchedule } from './vampireDetection';
+
 export interface ElectricalObject {
   id: string;
   name: string;
@@ -10,6 +12,7 @@ export interface Classroom {
   id: string;
   name: string;
   objects: ElectricalObject[];
+  schedule: WeeklySchedule;
 }
 
 export interface Building {
@@ -80,20 +83,22 @@ export function createDefaultBuildingsData(): BuildingsData {
   const buildings: Building[] = [
     {
       id: generateId(),
-      name: 'Building A',
+      name: 'Edificio A',
       classrooms: Array.from({ length: 10 }, (_, i) => ({
         id: generateId(),
-        name: `Classroom ${i + 1}`,
+        name: `Salón ${i + 1}`,
         objects: [],
+        schedule: { ...defaultSchedule },
       })),
     },
     {
       id: generateId(),
-      name: 'Building B',
+      name: 'Edificio B',
       classrooms: Array.from({ length: 10 }, (_, i) => ({
         id: generateId(),
-        name: `Classroom ${i + 1}`,
+        name: `Salón ${i + 1}`,
         objects: [],
+        schedule: { ...defaultSchedule },
       })),
     },
   ];

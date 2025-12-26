@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Classroom, ElectricalObject, calculateClassroomDailyKwh, generateId, commonElectricalObjects } from '@/lib/buildingTypes';
 import { ElectricalObjectRow } from './ElectricalObjectRow';
+import { ScheduleEditor } from './ScheduleEditor';
+import { WeeklySchedule } from '@/lib/vampireDetection';
 
 interface ClassroomCardProps {
   classroom: Classroom;
@@ -15,6 +17,10 @@ export function ClassroomCard({ classroom, onChange }: ClassroomCardProps) {
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   
   const dailyKwh = calculateClassroomDailyKwh(classroom);
+
+  const handleScheduleChange = (schedule: WeeklySchedule) => {
+    onChange({ ...classroom, schedule });
+  };
 
   const handleAddObject = () => {
     const newObject: ElectricalObject = {
@@ -73,11 +79,14 @@ export function ClassroomCard({ classroom, onChange }: ClassroomCardProps) {
           )}
           <span className="font-medium text-foreground">{classroom.name}</span>
           <span className="text-xs text-muted-foreground">
-            ({classroom.objects.length} objects)
+            ({classroom.objects.length} objetos)
           </span>
         </div>
-        <div className="text-sm font-mono text-primary">
-          {dailyKwh.toFixed(2)} kWh/day
+        <div className="flex items-center gap-2">
+          <ScheduleEditor schedule={classroom.schedule} onChange={handleScheduleChange} />
+          <div className="text-sm font-mono text-primary">
+            {dailyKwh.toFixed(2)} kWh/día
+          </div>
         </div>
       </button>
 
