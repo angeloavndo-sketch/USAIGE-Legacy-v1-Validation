@@ -1,7 +1,8 @@
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ElectricalObject, calculateObjectDailyKwh } from '@/lib/buildingTypes';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ElectricalObject, calculateObjectDailyKwh, PowerUnit } from '@/lib/buildingTypes';
 
 interface ElectricalObjectRowProps {
   object: ElectricalObject;
@@ -23,15 +24,29 @@ export function ElectricalObjectRow({ object, onChange, onDelete }: ElectricalOb
         />
       </td>
       <td className="p-2">
-        <Input
-          type="number"
-          min="0"
-          step="1"
-          value={object.watts}
-          onChange={(e) => onChange({ ...object, watts: Math.max(0, parseFloat(e.target.value) || 0) })}
-          className="h-8 text-sm font-mono bg-background/50 border-border/50 w-20"
-          placeholder="Watts"
-        />
+        <div className="flex items-center gap-1">
+          <Input
+            type="number"
+            min="0"
+            step="0.01"
+            value={object.watts}
+            onChange={(e) => onChange({ ...object, watts: Math.max(0, parseFloat(e.target.value) || 0) })}
+            className="h-8 text-sm font-mono bg-background/50 border-border/50 w-20"
+            placeholder="Potencia"
+          />
+          <Select 
+            value={object.powerUnit || 'W'} 
+            onValueChange={(value: PowerUnit) => onChange({ ...object, powerUnit: value })}
+          >
+            <SelectTrigger className="h-8 w-16 text-xs bg-primary/20 border-primary/40 text-primary font-semibold">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-border">
+              <SelectItem value="W" className="text-xs font-medium">W</SelectItem>
+              <SelectItem value="kW" className="text-xs font-medium">kW</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </td>
       <td className="p-2">
         <Input

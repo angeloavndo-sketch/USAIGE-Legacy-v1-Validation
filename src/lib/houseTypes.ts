@@ -1,9 +1,12 @@
 import { WeeklySchedule, defaultSchedule } from './vampireDetection';
 
+export type PowerUnit = 'W' | 'kW';
+
 export interface HouseElectricalObject {
   id: string;
   name: string;
-  watts: number; // Potencia en Watts (W)
+  watts: number; // Potencia en W o kW según powerUnit
+  powerUnit: PowerUnit; // Unidad de potencia
   quantity: number;
   hoursPerDay: number;
 }
@@ -33,13 +36,20 @@ function safeParseFloat(value: number | string): number {
 
 /**
  * CÁLCULO DE CONSUMO DIARIO POR OBJETO (CASA)
- * Fórmula: kWh = (Watts × Cantidad × Horas) / 1000
+ * Fórmula DUAL:
+ * - Si es W: kWh = (Watts × Cantidad × Horas) / 1000
+ * - Si es kW: kWh = (kW × Cantidad × Horas)
  */
 export function calculateObjectDailyKwh(obj: HouseElectricalObject): number {
-  const watts = safeParseFloat(obj.watts);
+  const power = safeParseFloat(obj.watts);
   const quantity = safeParseFloat(obj.quantity);
   const hours = safeParseFloat(obj.hoursPerDay);
-  return parseFloat(((watts * quantity * hours) / 1000).toFixed(4));
+  const unit = obj.powerUnit || 'W';
+  
+  if (unit === 'kW') {
+    return parseFloat((power * quantity * hours).toFixed(4));
+  }
+  return parseFloat(((power * quantity * hours) / 1000).toFixed(4));
 }
 
 // Calculate daily kWh for a room
@@ -75,10 +85,11 @@ export function calculateRoomHourlyUsage(room: Room): number[] {
   const activeHours = getActiveHoursForDay(room.schedule, today);
   
   room.objects.forEach(obj => {
-    const watts = safeParseFloat(obj.watts);
+    const power = safeParseFloat(obj.watts);
     const quantity = safeParseFloat(obj.quantity);
-    // Convertir Watts a kW
-    const totalKw = (watts * quantity) / 1000;
+    const unit = obj.powerUnit || 'W';
+    // Convertir a kW
+    const totalKw = unit === 'kW' ? (power * quantity) : (power * quantity) / 1000;
     const hoursActive = Math.min(safeParseFloat(obj.hoursPerDay), activeHours.length);
     
     for (let i = 0; i < hoursActive && i < activeHours.length; i++) {
@@ -117,6 +128,7 @@ function createSampleRoomObjects(roomName: string): HouseElectricalObject[] {
     id: generateId(),
     name: 'Foco LED 10W',
     watts: 10,
+    powerUnit: 'W',
     quantity: roomName === 'Sala' ? 6 : roomName === 'Cocina' ? 4 : 2,
     hoursPerDay: 5,
   });
@@ -125,67 +137,67 @@ function createSampleRoomObjects(roomName: string): HouseElectricalObject[] {
   switch (roomName) {
     case 'Sala':
       objects.push(
-        { id: generateId(), name: 'Televisión LED 55"', watts: 100, quantity: 1, hoursPerDay: 6 },
-        { id: generateId(), name: 'Aire Acondicionado', watts: 2500, quantity: 1, hoursPerDay: 8 },
-        { id: generateId(), name: 'Consola de Videojuegos', watts: 150, quantity: 1, hoursPerDay: 3 },
-        { id: generateId(), name: 'Router WiFi', watts: 10, quantity: 1, hoursPerDay: 24 }
+        { id: generateId(), name: 'Televisión LED 55"', watts: 100, powerUnit: 'W', quantity: 1, hoursPerDay: 6 },
+        { id: generateId(), name: 'Aire Acondicionado', watts: 2500, powerUnit: 'W', quantity: 1, hoursPerDay: 8 },
+        { id: generateId(), name: 'Consola de Videojuegos', watts: 150, powerUnit: 'W', quantity: 1, hoursPerDay: 3 },
+        { id: generateId(), name: 'Router WiFi', watts: 10, powerUnit: 'W', quantity: 1, hoursPerDay: 24 }
       );
       break;
     case 'Cocina':
       objects.push(
-        { id: generateId(), name: 'Refrigerador', watts: 150, quantity: 1, hoursPerDay: 24 },
-        { id: generateId(), name: 'Microondas', watts: 1000, quantity: 1, hoursPerDay: 0.5 },
-        { id: generateId(), name: 'Licuadora', watts: 300, quantity: 1, hoursPerDay: 0.25 },
-        { id: generateId(), name: 'Cafetera', watts: 800, quantity: 1, hoursPerDay: 0.5 }
+        { id: generateId(), name: 'Refrigerador', watts: 150, powerUnit: 'W', quantity: 1, hoursPerDay: 24 },
+        { id: generateId(), name: 'Microondas', watts: 1000, powerUnit: 'W', quantity: 1, hoursPerDay: 0.5 },
+        { id: generateId(), name: 'Licuadora', watts: 300, powerUnit: 'W', quantity: 1, hoursPerDay: 0.25 },
+        { id: generateId(), name: 'Cafetera', watts: 800, powerUnit: 'W', quantity: 1, hoursPerDay: 0.5 }
       );
       break;
     case 'Recámara Principal':
       objects.push(
-        { id: generateId(), name: 'Aire Acondicionado Mini Split', watts: 1500, quantity: 1, hoursPerDay: 8 },
-        { id: generateId(), name: 'Televisión LED 40"', watts: 80, quantity: 1, hoursPerDay: 3 },
-        { id: generateId(), name: 'Cargador de Celular', watts: 5, quantity: 2, hoursPerDay: 8 },
-        { id: generateId(), name: 'Ventilador de Techo', watts: 75, quantity: 1, hoursPerDay: 6 }
+        { id: generateId(), name: 'Aire Acondicionado Mini Split', watts: 1500, powerUnit: 'W', quantity: 1, hoursPerDay: 8 },
+        { id: generateId(), name: 'Televisión LED 40"', watts: 80, powerUnit: 'W', quantity: 1, hoursPerDay: 3 },
+        { id: generateId(), name: 'Cargador de Celular', watts: 5, powerUnit: 'W', quantity: 2, hoursPerDay: 8 },
+        { id: generateId(), name: 'Ventilador de Techo', watts: 75, powerUnit: 'W', quantity: 1, hoursPerDay: 6 }
       );
       break;
     case 'Recámara 2':
       objects.push(
-        { id: generateId(), name: 'Ventilador de Piso', watts: 50, quantity: 1, hoursPerDay: 8 },
-        { id: generateId(), name: 'Laptop', watts: 50, quantity: 1, hoursPerDay: 4 },
-        { id: generateId(), name: 'Cargador de Celular', watts: 5, quantity: 1, hoursPerDay: 8 }
+        { id: generateId(), name: 'Ventilador de Piso', watts: 50, powerUnit: 'W', quantity: 1, hoursPerDay: 8 },
+        { id: generateId(), name: 'Laptop', watts: 50, powerUnit: 'W', quantity: 1, hoursPerDay: 4 },
+        { id: generateId(), name: 'Cargador de Celular', watts: 5, powerUnit: 'W', quantity: 1, hoursPerDay: 8 }
       );
       break;
     case 'Estudio':
       objects.push(
-        { id: generateId(), name: 'Computadora de Escritorio', watts: 300, quantity: 1, hoursPerDay: 6 },
-        { id: generateId(), name: 'Monitor', watts: 30, quantity: 2, hoursPerDay: 6 },
-        { id: generateId(), name: 'Impresora', watts: 50, quantity: 1, hoursPerDay: 0.5 },
-        { id: generateId(), name: 'Aire Acondicionado Mini Split', watts: 1500, quantity: 1, hoursPerDay: 6 }
+        { id: generateId(), name: 'Computadora de Escritorio', watts: 300, powerUnit: 'W', quantity: 1, hoursPerDay: 6 },
+        { id: generateId(), name: 'Monitor', watts: 30, powerUnit: 'W', quantity: 2, hoursPerDay: 6 },
+        { id: generateId(), name: 'Impresora', watts: 50, powerUnit: 'W', quantity: 1, hoursPerDay: 0.5 },
+        { id: generateId(), name: 'Aire Acondicionado Mini Split', watts: 1500, powerUnit: 'W', quantity: 1, hoursPerDay: 6 }
       );
       break;
     case 'Lavandería':
       objects.push(
-        { id: generateId(), name: 'Lavadora', watts: 500, quantity: 1, hoursPerDay: 1.5 },
-        { id: generateId(), name: 'Secadora', watts: 3000, quantity: 1, hoursPerDay: 1 },
-        { id: generateId(), name: 'Plancha', watts: 1200, quantity: 1, hoursPerDay: 0.5 }
+        { id: generateId(), name: 'Lavadora', watts: 500, powerUnit: 'W', quantity: 1, hoursPerDay: 1.5 },
+        { id: generateId(), name: 'Secadora', watts: 3000, powerUnit: 'W', quantity: 1, hoursPerDay: 1 },
+        { id: generateId(), name: 'Plancha', watts: 1200, powerUnit: 'W', quantity: 1, hoursPerDay: 0.5 }
       );
       break;
     case 'Garage':
       objects.push(
-        { id: generateId(), name: 'Lámpara Fluorescente', watts: 40, quantity: 2, hoursPerDay: 2 },
-        { id: generateId(), name: 'Bomba de Agua', watts: 750, quantity: 1, hoursPerDay: 1 }
+        { id: generateId(), name: 'Lámpara Fluorescente', watts: 40, powerUnit: 'W', quantity: 2, hoursPerDay: 2 },
+        { id: generateId(), name: 'Bomba de Agua', watts: 750, powerUnit: 'W', quantity: 1, hoursPerDay: 1 }
       );
       break;
     case 'Patio':
       objects.push(
-        { id: generateId(), name: 'Bomba de Agua', watts: 750, quantity: 1, hoursPerDay: 0.5 },
-        { id: generateId(), name: 'Luz Exterior', watts: 15, quantity: 4, hoursPerDay: 6 }
+        { id: generateId(), name: 'Bomba de Agua', watts: 750, powerUnit: 'W', quantity: 1, hoursPerDay: 0.5 },
+        { id: generateId(), name: 'Luz Exterior', watts: 15, powerUnit: 'W', quantity: 4, hoursPerDay: 6 }
       );
       break;
     case 'Baño Principal':
     case 'Baño 2':
       objects.push(
-        { id: generateId(), name: 'Calentador de Agua', watts: 4500, quantity: 1, hoursPerDay: 0.5 },
-        { id: generateId(), name: 'Secadora de Pelo', watts: 1500, quantity: 1, hoursPerDay: 0.25 }
+        { id: generateId(), name: 'Calentador de Agua', watts: 4500, powerUnit: 'W', quantity: 1, hoursPerDay: 0.5 },
+        { id: generateId(), name: 'Secadora de Pelo', watts: 1500, powerUnit: 'W', quantity: 1, hoursPerDay: 0.25 }
       );
       break;
   }

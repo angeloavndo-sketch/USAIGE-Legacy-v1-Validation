@@ -1,9 +1,12 @@
 import { WeeklySchedule, defaultSchedule } from './vampireDetection';
 
+export type PowerUnit = 'W' | 'kW';
+
 export interface ElectricalObject {
   id: string;
   name: string;
-  watts: number; // Potencia en Watts (W)
+  watts: number; // Potencia en W o kW según powerUnit
+  powerUnit: PowerUnit; // Unidad de potencia
   quantity: number;
   hoursPerDay: number; // Horas de uso por día
 }
@@ -34,17 +37,26 @@ function safeParseFloat(value: number | string): number {
 /**
  * CÁLCULO DE CONSUMO DIARIO POR OBJETO
  * =====================================
- * Fórmula: kWh = (Watts × Cantidad × Horas) / 1000
+ * Fórmula DUAL:
+ * - Si es W: kWh = (Watts × Cantidad × Horas) / 1000
+ * - Si es kW: kWh = (kW × Cantidad × Horas)
  * 
- * @param obj - Objeto eléctrico con potencia en WATTS
+ * @param obj - Objeto eléctrico con potencia en W o kW
  * @returns Consumo diario en kWh (4 decimales de precisión)
  */
 export function calculateObjectDailyKwh(obj: ElectricalObject): number {
-  const watts = safeParseFloat(obj.watts);
+  const power = safeParseFloat(obj.watts);
   const quantity = safeParseFloat(obj.quantity);
   const hours = safeParseFloat(obj.hoursPerDay);
-  // Fórmula: (W × Q × H) / 1000 = kWh
-  return parseFloat(((watts * quantity * hours) / 1000).toFixed(4));
+  const unit = obj.powerUnit || 'W'; // Default to W for backwards compatibility
+  
+  // Lógica dual: W divide entre 1000, kW se usa directo
+  if (unit === 'kW') {
+    // kW × Cantidad × Horas = kWh
+    return parseFloat((power * quantity * hours).toFixed(4));
+  }
+  // W × Cantidad × Horas / 1000 = kWh
+  return parseFloat(((power * quantity * hours) / 1000).toFixed(4));
 }
 
 // Calculate total kWh for a classroom per day
@@ -89,10 +101,11 @@ export function calculateBuildingHourlyUsage(building: Building): number[] {
     const activeHours = getActiveHoursForDay(classroom.schedule, today);
     
     classroom.objects.forEach(obj => {
-      const watts = safeParseFloat(obj.watts);
+      const power = safeParseFloat(obj.watts);
       const quantity = safeParseFloat(obj.quantity);
-      // Convertir Watts a kW para visualización por hora
-      const totalKw = (watts * quantity) / 1000;
+      const unit = obj.powerUnit || 'W';
+      // Convertir a kW para visualización por hora
+      const totalKw = unit === 'kW' ? (power * quantity) : (power * quantity) / 1000;
       const hoursActive = Math.min(safeParseFloat(obj.hoursPerDay), activeHours.length);
       
       // Distribute usage across active hours
@@ -134,6 +147,7 @@ function createSampleClassroomObjects(): ElectricalObject[] {
     id: generateId(),
     name: 'Aire Acondicionado',
     watts: 2500,
+    powerUnit: 'W',
     quantity: 1,
     hoursPerDay: 8,
   });
@@ -143,6 +157,7 @@ function createSampleClassroomObjects(): ElectricalObject[] {
     id: generateId(),
     name: 'Lámpara Fluorescente',
     watts: 40,
+    powerUnit: 'W',
     quantity: 8,
     hoursPerDay: 8,
   });
@@ -152,6 +167,7 @@ function createSampleClassroomObjects(): ElectricalObject[] {
     id: generateId(),
     name: 'Computadora',
     watts: 300,
+    powerUnit: 'W',
     quantity: Math.floor(Math.random() * 5) + 1,
     hoursPerDay: 6,
   });
@@ -162,6 +178,7 @@ function createSampleClassroomObjects(): ElectricalObject[] {
       id: generateId(),
       name: 'Proyector',
       watts: 300,
+      powerUnit: 'W',
       quantity: 1,
       hoursPerDay: 4,
     });
@@ -173,6 +190,7 @@ function createSampleClassroomObjects(): ElectricalObject[] {
       id: generateId(),
       name: 'Ventilador',
       watts: 75,
+      powerUnit: 'W',
       quantity: 2,
       hoursPerDay: 6,
     });
