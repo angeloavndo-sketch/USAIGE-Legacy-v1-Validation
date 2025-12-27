@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { HouseData, Room, HouseElectricalObject, commonHouseObjects, generateId, calculateRoomDailyKwh, createDefaultHouseData } from '@/lib/houseTypes';
+import { HouseData, Room, HouseElectricalObject, commonHouseObjects, generateId, calculateRoomDailyKwh, createDefaultHouseData, PowerUnit } from '@/lib/houseTypes';
 import { ScheduleEditor } from '@/components/ScheduleEditor';
 import { useToast } from '@/hooks/use-toast';
 
@@ -64,6 +64,7 @@ export function HouseManager({ houseData, onUpdate }: HouseManagerProps) {
       id: generateId(),
       name: 'Nuevo Dispositivo',
       watts: 100,
+      powerUnit: 'W',
       quantity: 1,
       hoursPerDay: 4,
     };
@@ -239,6 +240,7 @@ export function HouseManager({ houseData, onUpdate }: HouseManagerProps) {
                                   updateObject(room.id, obj.id, {
                                     name: value,
                                     watts: preset?.watts || obj.watts,
+                                    powerUnit: 'W',
                                   });
                                 }}
                               >
@@ -257,12 +259,23 @@ export function HouseManager({ houseData, onUpdate }: HouseManagerProps) {
                               <div className="flex items-center gap-1">
                                 <Input
                                   type="number"
-                                  step="1"
+                                  step="0.01"
                                   value={obj.watts}
                                   onChange={(e) => updateObject(room.id, obj.id, { watts: parseFloat(e.target.value) || 0 })}
                                   className="w-20 h-8 text-sm"
                                 />
-                                <span className="text-xs text-muted-foreground">W</span>
+                                <Select 
+                                  value={obj.powerUnit || 'W'} 
+                                  onValueChange={(value: PowerUnit) => updateObject(room.id, obj.id, { powerUnit: value })}
+                                >
+                                  <SelectTrigger className="h-8 w-16 text-xs bg-accent/20 border-accent/40 text-accent font-semibold">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-background border-border">
+                                    <SelectItem value="W" className="text-xs font-medium">W</SelectItem>
+                                    <SelectItem value="kW" className="text-xs font-medium">kW</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
 
                               <div className="flex items-center gap-1">
@@ -287,7 +300,10 @@ export function HouseManager({ houseData, onUpdate }: HouseManagerProps) {
                               </div>
 
                               <span className="text-sm font-mono text-accent ml-auto">
-                                {((obj.watts * obj.quantity * obj.hoursPerDay) / 1000).toFixed(2)} kWh
+                                {(obj.powerUnit === 'kW' 
+                                  ? (obj.watts * obj.quantity * obj.hoursPerDay)
+                                  : ((obj.watts * obj.quantity * obj.hoursPerDay) / 1000)
+                                ).toFixed(2)} kWh
                               </span>
 
                               <Button

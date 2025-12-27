@@ -27,6 +27,7 @@ export function ClassroomCard({ classroom, onChange }: ClassroomCardProps) {
       id: generateId(),
       name: 'Nuevo Objeto',
       watts: 100,
+      powerUnit: 'W',
       quantity: 1,
       hoursPerDay: 8,
     };
@@ -43,6 +44,7 @@ export function ClassroomCard({ classroom, onChange }: ClassroomCardProps) {
         id: generateId(),
         name: preset.name,
         watts: preset.watts,
+        powerUnit: 'W',
         quantity: 1,
         hoursPerDay: 8,
       };
