@@ -63,7 +63,7 @@ export function HouseManager({ houseData, onUpdate }: HouseManagerProps) {
     const newObject: HouseElectricalObject = {
       id: generateId(),
       name: 'Nuevo Dispositivo',
-      kw: 0.1,
+      watts: 100,
       quantity: 1,
       hoursPerDay: 4,
     };
@@ -238,7 +238,7 @@ export function HouseManager({ houseData, onUpdate }: HouseManagerProps) {
                                   const preset = commonHouseObjects.find(o => o.name === value);
                                   updateObject(room.id, obj.id, {
                                     name: value,
-                                    kw: preset?.kw || obj.kw,
+                                    watts: preset?.watts || obj.watts,
                                   });
                                 }}
                               >
@@ -248,7 +248,7 @@ export function HouseManager({ houseData, onUpdate }: HouseManagerProps) {
                                 <SelectContent>
                                   {commonHouseObjects.map(o => (
                                     <SelectItem key={o.name} value={o.name}>
-                                      {o.name} ({o.kw} kW)
+                                      {o.name} ({o.watts}W)
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -257,12 +257,12 @@ export function HouseManager({ houseData, onUpdate }: HouseManagerProps) {
                               <div className="flex items-center gap-1">
                                 <Input
                                   type="number"
-                                  step="0.01"
-                                  value={obj.kw}
-                                  onChange={(e) => updateObject(room.id, obj.id, { kw: parseFloat(e.target.value) || 0 })}
+                                  step="1"
+                                  value={obj.watts}
+                                  onChange={(e) => updateObject(room.id, obj.id, { watts: parseFloat(e.target.value) || 0 })}
                                   className="w-20 h-8 text-sm"
                                 />
-                                <span className="text-xs text-muted-foreground">kW</span>
+                                <span className="text-xs text-muted-foreground">W</span>
                               </div>
 
                               <div className="flex items-center gap-1">
@@ -287,7 +287,7 @@ export function HouseManager({ houseData, onUpdate }: HouseManagerProps) {
                               </div>
 
                               <span className="text-sm font-mono text-accent ml-auto">
-                                {(obj.kw * obj.quantity * obj.hoursPerDay).toFixed(2)} kWh
+                                {((obj.watts * obj.quantity * obj.hoursPerDay) / 1000).toFixed(2)} kWh
                               </span>
 
                               <Button

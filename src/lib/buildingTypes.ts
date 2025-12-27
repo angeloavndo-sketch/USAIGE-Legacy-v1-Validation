@@ -3,9 +3,9 @@ import { WeeklySchedule, defaultSchedule } from './vampireDetection';
 export interface ElectricalObject {
   id: string;
   name: string;
-  kw: number; // kW consumption per hour
+  watts: number; // Potencia en Watts (W)
   quantity: number;
-  hoursPerDay: number; // hours used per day
+  hoursPerDay: number; // Horas de uso por día
 }
 
 export interface Classroom {
@@ -31,14 +31,20 @@ function safeParseFloat(value: number | string): number {
   return isNaN(parsed) ? 0 : parsed;
 }
 
-// Calculate total kWh for an electrical object per day
-// Formula: kWh = (Watts * Hours) / 1000, where kW = Watts/1000
-// So kWh = kW * Hours
+/**
+ * CÁLCULO DE CONSUMO DIARIO POR OBJETO
+ * =====================================
+ * Fórmula: kWh = (Watts × Cantidad × Horas) / 1000
+ * 
+ * @param obj - Objeto eléctrico con potencia en WATTS
+ * @returns Consumo diario en kWh (4 decimales de precisión)
+ */
 export function calculateObjectDailyKwh(obj: ElectricalObject): number {
-  const kw = safeParseFloat(obj.kw);
+  const watts = safeParseFloat(obj.watts);
   const quantity = safeParseFloat(obj.quantity);
   const hours = safeParseFloat(obj.hoursPerDay);
-  return parseFloat((kw * quantity * hours).toFixed(4));
+  // Fórmula: (W × Q × H) / 1000 = kWh
+  return parseFloat(((watts * quantity * hours) / 1000).toFixed(4));
 }
 
 // Calculate total kWh for a classroom per day
@@ -74,6 +80,7 @@ function getActiveHoursForDay(schedule: WeeklySchedule, dayIndex: number): numbe
 }
 
 // Calculate hourly usage for a single building based on schedules
+// Returns kW per hour (Watts converted to kW)
 export function calculateBuildingHourlyUsage(building: Building): number[] {
   const hourlyUsage = Array(24).fill(0);
   const today = new Date().getDay();
@@ -82,9 +89,10 @@ export function calculateBuildingHourlyUsage(building: Building): number[] {
     const activeHours = getActiveHoursForDay(classroom.schedule, today);
     
     classroom.objects.forEach(obj => {
-      const kw = safeParseFloat(obj.kw);
+      const watts = safeParseFloat(obj.watts);
       const quantity = safeParseFloat(obj.quantity);
-      const totalKw = kw * quantity;
+      // Convertir Watts a kW para visualización por hora
+      const totalKw = (watts * quantity) / 1000;
       const hoursActive = Math.min(safeParseFloat(obj.hoursPerDay), activeHours.length);
       
       // Distribute usage across active hours
@@ -117,54 +125,54 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
-// Create realistic sample data for a classroom
+// Create realistic sample data for a classroom (NOW IN WATTS)
 function createSampleClassroomObjects(): ElectricalObject[] {
   const objects: ElectricalObject[] = [];
   
-  // Air Conditioner - most buildings have AC
+  // Aire Acondicionado - 2500W
   objects.push({
     id: generateId(),
     name: 'Aire Acondicionado',
-    kw: 2.5,
+    watts: 2500,
     quantity: 1,
     hoursPerDay: 8,
   });
   
-  // Fluorescent lights
+  // Lámparas Fluorescentes - 40W cada una
   objects.push({
     id: generateId(),
     name: 'Lámpara Fluorescente',
-    kw: 0.04,
+    watts: 40,
     quantity: 8,
     hoursPerDay: 8,
   });
   
-  // Computers
+  // Computadoras - 300W
   objects.push({
     id: generateId(),
     name: 'Computadora',
-    kw: 0.3,
+    watts: 300,
     quantity: Math.floor(Math.random() * 5) + 1,
     hoursPerDay: 6,
   });
   
-  // Projector
+  // Proyector - 300W
   if (Math.random() > 0.3) {
     objects.push({
       id: generateId(),
       name: 'Proyector',
-      kw: 0.3,
+      watts: 300,
       quantity: 1,
       hoursPerDay: 4,
     });
   }
   
-  // Fan
+  // Ventilador - 75W
   if (Math.random() > 0.5) {
     objects.push({
       id: generateId(),
       name: 'Ventilador',
-      kw: 0.075,
+      watts: 75,
       quantity: 2,
       hoursPerDay: 6,
     });
@@ -219,24 +227,24 @@ export function createDefaultBuildingsData(): BuildingsData {
   return { buildings };
 }
 
-// Common electrical objects with typical kW values (Spanish)
+// Common electrical objects with typical WATTS values (Spanish)
 export const commonElectricalObjects = [
-  { name: 'Aire Acondicionado', kw: 2.5 },
-  { name: 'Aire Acondicionado Mini Split', kw: 1.5 },
-  { name: 'Televisión LED 55"', kw: 0.1 },
-  { name: 'Foco LED 10W', kw: 0.01 },
-  { name: 'Foco Incandescente 60W', kw: 0.06 },
-  { name: 'Lámpara Fluorescente', kw: 0.04 },
-  { name: 'Computadora de Escritorio', kw: 0.3 },
-  { name: 'Laptop', kw: 0.05 },
-  { name: 'Proyector', kw: 0.3 },
-  { name: 'Ventilador de Techo', kw: 0.075 },
-  { name: 'Ventilador de Piso', kw: 0.05 },
-  { name: 'Refrigerador', kw: 0.15 },
-  { name: 'Microondas', kw: 1.0 },
-  { name: 'Impresora', kw: 0.05 },
-  { name: 'Dispensador de Agua', kw: 0.5 },
-  { name: 'Cafetera', kw: 0.8 },
-  { name: 'Router WiFi', kw: 0.01 },
-  { name: 'Cargador de Celular', kw: 0.005 },
+  { name: 'Aire Acondicionado', watts: 2500 },
+  { name: 'Aire Acondicionado Mini Split', watts: 1500 },
+  { name: 'Televisión LED 55"', watts: 100 },
+  { name: 'Foco LED 10W', watts: 10 },
+  { name: 'Foco Incandescente 60W', watts: 60 },
+  { name: 'Lámpara Fluorescente', watts: 40 },
+  { name: 'Computadora de Escritorio', watts: 300 },
+  { name: 'Laptop', watts: 50 },
+  { name: 'Proyector', watts: 300 },
+  { name: 'Ventilador de Techo', watts: 75 },
+  { name: 'Ventilador de Piso', watts: 50 },
+  { name: 'Refrigerador', watts: 150 },
+  { name: 'Microondas', watts: 1000 },
+  { name: 'Impresora', watts: 50 },
+  { name: 'Dispensador de Agua', watts: 500 },
+  { name: 'Cafetera', watts: 800 },
+  { name: 'Router WiFi', watts: 10 },
+  { name: 'Cargador de Celular', watts: 5 },
 ];

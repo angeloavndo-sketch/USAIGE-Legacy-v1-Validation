@@ -26,10 +26,11 @@ export function ElectricalObjectRow({ object, onChange, onDelete }: ElectricalOb
         <Input
           type="number"
           min="0"
-          step="0.01"
-          value={object.kw}
-          onChange={(e) => onChange({ ...object, kw: Math.max(0, parseFloat(e.target.value) || 0) })}
+          step="1"
+          value={object.watts}
+          onChange={(e) => onChange({ ...object, watts: Math.max(0, parseFloat(e.target.value) || 0) })}
           className="h-8 text-sm font-mono bg-background/50 border-border/50 w-20"
+          placeholder="Watts"
         />
       </td>
       <td className="p-2">
