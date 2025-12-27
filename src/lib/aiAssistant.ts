@@ -1,7 +1,7 @@
 // Interactive AI Assistant for energy savings tips and anomaly analysis
 
 import { VampireAlert } from './vampireDetection';
-import { BillCalculation, PredictionResult, calculateBill, predictNextMonth, TariffBlock, MONTERREY_TARIFFS } from './tariffCalculator';
+import { BillCalculation, PredictionResult } from './tariffCalculator';
 
 export interface SavingsTip {
   id: string;
@@ -82,7 +82,7 @@ export function processQuestion(question: string, context: EnergyContext): strin
   // Bill/cost related questions
   if (q.includes('recibo') || q.includes('factura') || q.includes('costo') || q.includes('pagar') || q.includes('cuánto')) {
     if (q.includes('próximo') || q.includes('siguiente') || q.includes('mes')) {
-      const nextMonthEstimate = context.prediction?.nextMonth || context.estimatedBill * 1.05;
+      const nextMonthEstimate = context.prediction?.nextMonthEstimate?.total || context.estimatedBill * 1.05;
       const trend = context.prediction?.trend || 'stable';
       const trendText = trend === 'increasing' ? 'aumentando' : trend === 'decreasing' ? 'disminuyendo' : 'estable';
       
