@@ -25,8 +25,8 @@ export function ClassroomCard({ classroom, onChange }: ClassroomCardProps) {
   const handleAddObject = () => {
     const newObject: ElectricalObject = {
       id: generateId(),
-      name: 'New Object',
-      kw: 0.1,
+      name: 'Nuevo Objeto',
+      watts: 100,
       quantity: 1,
       hoursPerDay: 8,
     };
@@ -42,7 +42,7 @@ export function ClassroomCard({ classroom, onChange }: ClassroomCardProps) {
       const newObject: ElectricalObject = {
         id: generateId(),
         name: preset.name,
-        kw: preset.kw,
+        watts: preset.watts,
         quantity: 1,
         hoursPerDay: 8,
       };
@@ -97,11 +97,11 @@ export function ClassroomCard({ classroom, onChange }: ClassroomCardProps) {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/50 text-muted-foreground text-left">
-                    <th className="p-2 font-medium">Object</th>
-                    <th className="p-2 font-medium">kW</th>
-                    <th className="p-2 font-medium">Qty</th>
-                    <th className="p-2 font-medium">Hrs/Day</th>
-                    <th className="p-2 font-medium text-right">kWh/Day</th>
+                    <th className="p-2 font-medium">Objeto</th>
+                    <th className="p-2 font-medium">Watts (W)</th>
+                    <th className="p-2 font-medium">Cantidad</th>
+                    <th className="p-2 font-medium">Hrs/Día</th>
+                    <th className="p-2 font-medium text-right">kWh/Día</th>
                     <th className="p-2 w-10"></th>
                   </tr>
                 </thead>
@@ -126,12 +126,12 @@ export function ClassroomCard({ classroom, onChange }: ClassroomCardProps) {
           <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/30">
             <Select value={selectedPreset} onValueChange={handleAddPreset}>
               <SelectTrigger className="h-8 text-sm bg-background/50 border-border/50 flex-1">
-                <SelectValue placeholder="Add common object..." />
+                <SelectValue placeholder="Agregar objeto común..." />
               </SelectTrigger>
               <SelectContent>
                 {commonElectricalObjects.map((obj) => (
                   <SelectItem key={obj.name} value={obj.name}>
-                    {obj.name} ({obj.kw} kW)
+                    {obj.name} ({obj.watts}W)
                   </SelectItem>
                 ))}
               </SelectContent>
