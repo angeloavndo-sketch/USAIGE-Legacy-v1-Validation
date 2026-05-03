@@ -1,0 +1,38 @@
+USAIGE | Building the AI Operating System for Physical Spaces (Legacy v1)
+"WiFi-Sensing is our input; intelligent infrastructure is our outcome."
+
+This repository contains the v1 foundation of what has evolved into the AI Operating System for Physical Spaces. We began by mastering Channel State Information (CSI) extraction to prove that physical environments can be digitized with absolute privacy, using only existing radio frequency disturbances.
+
+🚀 The Evolution
+Since this inaugural version, USAIGE has matured into a production-grade architecture. While this repository remains public for historical transparency and technical proof-of-concept, our current proprietary system has achieved significant milestones:
+
+Institutional Validation
+Harvard Health Systems Innovation Lab (HSIL): Technically validated during the 2026 Hackathon, proving the robustness of our core signal processing logic.
+
+Startup México (SUM): Selected for the 5th generation of Mexico's premier incubation program.
+
+Peak NL: Currently accelerating industrial deployment within the Peak NL ecosystem in Monterrey.
+
+Strategic Ecosystem & Industry Authority
+Gartner Validation: Market thesis and technical roadmap peer-reviewed by senior executive leadership at Gartner.
+
+CAINTRA Network: Integrated into the industrial network of Nuevo León, providing a direct pipeline to Mexico's manufacturing heartland.
+
+Tec de Monterrey: Featured at Demo Day 2026, presenting to the top-tier venture capital community.
+
+🛠 Technical Legacy (v1)
+The code in this repository represents our "Gen-1" architecture:
+
+CSI Extraction: Initial implementation of packet capture using ESP32 microcontrollers.
+
+Signal Filtering: Basic noise reduction to isolate human movement signatures.
+
+Presence Logic: Binary classification for privacy-first space occupancy.
+
+Note: Our current Gen-5 architecture features advanced Edge-AI denoising and multi-target tracking. This IP is maintained in private repositories to protect our competitive advantage during our $300,000 USD pre-seed round.
+
+💼 Contact & Vision
+We are currently deploying in the industrial sector of Monterrey, Mexico, transforming how large-scale facilities understand their space without the use of cameras.
+
+Ángel
+Founder & CEO, USAIGE
