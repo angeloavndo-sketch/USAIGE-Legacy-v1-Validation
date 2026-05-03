@@ -1,4 +1,7 @@
-# USAIGE | The Foundation (Legacy v1)
+USAIGE | Building the AI Operating System for Physical Spaces (Legacy v1)
+"WiFi-Sensing is our input; intelligent infrastructure is our outcome."
+
+This repository contains the v1 foundation of what is now the AI Operating System for Physical Spaces. We began by mastering Channel State Information (CSI) extraction to prove that physical environments can be digitized without cameras or privacy intrusion.
 
 ![Status](https://img.shields.io/badge/Status-Legacy_Architecture-orange)
 ![Validation](https://img.shields.io/badge/Validation-Harvard_HSIL-blue)
